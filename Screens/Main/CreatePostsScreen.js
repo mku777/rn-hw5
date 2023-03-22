@@ -12,17 +12,25 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
+  Image,
 } from "react-native";
 
 import Location from "../../assets/images/postImg/location.svg";
 import AddPhoto from "../../assets/images/addPhoto.svg";
 import Delete from "../../assets/images/trash.svg";
 
-export const CreatePostsScreen = ({ navigation }) => {
+export const CreatePostsScreen = ({ navigation, route }) => {
+  const [fonts] = useFonts({
+    Roboto: require("../../assets/fonts/Roboto-Regular.ttf"),
+    RobotoMedium: require("../../assets/fonts/Roboto-Medium.ttf"),
+    RobotoBold: require("../../assets/fonts/Roboto-Bold.ttf"),
+  });
+
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width
   );
   const [title, setTitle] = useState("");
+  const [city, setCity] = useState("");
   const [isFocusedTitle, setIsFocusedTitle] = useState(false);
 
   const [location, setLocation] = useState("");
@@ -31,8 +39,52 @@ export const CreatePostsScreen = ({ navigation }) => {
   const [isDisabledPublish, setIsDisabledPublish] = useState(true);
   const [isDelete, setIsDelete] = useState(true);
 
+  const [image, setImage] = useState("");
+
   const titleHandler = (title) => setTitle(title);
-  const locationHandler = (location) => setLocation(location);
+  const cityHandler = (city) => setCity(city);
+
+  const onPublish = () => {
+    if (!title.trim() || !city) {
+      Alert.alert(`all fields are required`);
+      return;
+    }
+    Alert.alert(`successfully publish`);
+
+    const newPost = {
+      id: Date(),
+      img: image,
+      title: title,
+      city,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      comments: 10,
+      likes: 10,
+    };
+ 
+    console.log(newPost)
+
+    setTitle("");
+    setCity("");
+    setImage();
+    Keyboard.dismiss();
+    navigation.navigate("Posts", newPost);
+  };
+
+  const onDelete = () => {
+    setTitle("");
+    setCity("");
+    setImage();
+    Alert.alert(`successfully deleted`);
+    Keyboard.dismiss();
+  };
+
+  useEffect(() => {
+    if (route.params) {
+      setImage(route.params.photo);
+      setLocation(route.params.location);
+    }
+  }, [route.params]);
 
   useEffect(() => {
     const onChange = () => {
@@ -45,33 +97,14 @@ export const CreatePostsScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    title && location
+    title && city && image
       ? setIsDisabledPublish(false)
       : setIsDisabledPublish(true);
-  }, [title, location]);
+  }, [title, city, image]);
 
   useEffect(() => {
-    title || location ? setIsDelete(false) : setIsDelete(true);
-  }, [title, location]);
-
-  const onPublish = () => {
-    if (!title.trim() || !location.trim()) {
-      Alert.alert(`All fields must be filled`);
-      return;
-    }
-    Alert.alert(`created successfully`);
-    console.log(title, location);
-    setTitle("");
-    setLocation("");
-    Keyboard.dismiss();
-  };
-
-  const onDelete = () => {
-    setTitle("");
-    setLocation("");
-    Alert.alert(`successfully deleted`);
-    Keyboard.dismiss();
-  };
+    title || city || image ? setIsDelete(false) : setIsDelete(true);
+  }, [title, city, image]);
 
   useEffect(() => {
     async function prepare() {
@@ -79,12 +112,6 @@ export const CreatePostsScreen = ({ navigation }) => {
     }
     prepare();
   }, []);
-
-  const [fonts] = useFonts({
-    Roboto: require("../../assets/fonts/Roboto-Regular.ttf"),
-    RobotoMedium: require("../../assets/fonts/Roboto-Medium.ttf"),
-    RobotoBold: require("../../assets/fonts/Roboto-Bold.ttf"),
-  });
 
   const onLayoutRootView = useCallback(async () => {
     if (fonts) {
@@ -102,12 +129,34 @@ export const CreatePostsScreen = ({ navigation }) => {
       style={styles.container}
     >
       <ScrollView>
-        <View style={styles.section}>
-          <View style={{ ...styles.contentSection, width: windowWidth - 30 }}>
-            <TouchableOpacity>
-              <AddPhoto />
-            </TouchableOpacity>
-          </View>
+        <View style={{ ...styles.section, width: windowWidth }}>
+          {image ? (
+            <View>
+              <Image
+                style={{ ...styles.image, width: windowWidth - 32 }}
+                source={{ uri: image }}
+              />
+              <TouchableOpacity
+                style={{
+                  position: "absolute",
+                  top: 90,
+                  left: (windowWidth - 60 - 32) / 2,
+                }}
+              >
+                <AddPhoto
+                  onPress={() => navigation.navigate("Camera")}
+                  opacity={0.3}
+                />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={{ ...styles.noPhoto, width: windowWidth - 16 * 2 }}>
+              <TouchableOpacity>
+                <AddPhoto onPress={() => navigation.navigate("Camera")} />
+              </TouchableOpacity>
+            </View>
+          )}
+
           <View style={styles.contantTitle}>
             <Text style={styles.text}>Upload photo</Text>
           </View>
@@ -133,15 +182,17 @@ export const CreatePostsScreen = ({ navigation }) => {
               }}
               onFocus={() => setIsFocusedLocation(true)}
               onBlur={() => setIsFocusedLocation(false)}
-              value={location}
+              value={city
+              }
               textContentType={"location"}
               placeholder="Place"
               cursorColor={"#BDBDBD"}
               placeholderTextColor={"#BDBDBD"}
-              onChangeText={locationHandler}
-              onPressIn={() => navigation.navigate("Map")}
+              onChangeText={cityHandler}
             ></TextInput>
-            <Location style={styles.locationIcon} />
+            <Location
+              style={styles.locationIcon}
+            />
           </View>
           <TouchableOpacity
             style={{
@@ -186,6 +237,16 @@ const styles = StyleSheet.create({
     marginTop: 32,
     paddingHorizontal: 16,
   },
+  noPhoto: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 240,
+    backgroundColor: "#F6F6F6",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: "#E8E8E8",
+  },
   contentSection: {
     alignItems: "center",
     justifyContent: "center",
@@ -195,6 +256,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     borderColor: "#E8E8E8",
+  },
+  image: {
+    height: 240,
+
+    resizeMode: "cover",
+    borderRadius: 8,
   },
   contantTitle: {
     width: "100%",

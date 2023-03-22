@@ -58,7 +58,7 @@ export const BottomMenu = ({ navigation }) => {
         }}
       />
       <BottomTab.Screen
-        name="Create a post"
+        name="CreatePosts"
         component={CreatePostsScreen}
         options={{
           tabBarStyle: { display: "none" },

@@ -17,29 +17,36 @@ import Message from "../../assets/images/postImg/message.svg";
 import Like from "../../assets/images/postImg/like.svg";
 import Location from "../../assets/images/postImg/location.svg";
 
-export const PostsScreen = ({ navigation }) => {
+export const PostsScreen = ({ route, navigation }) => {
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width
   );
 
-  const [posts, setPosts] = useState(postsScreenArray);
+ const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    const onChange = () => {
-      const width = Dimensions.get("window").width;
-      setWindowWidth(width);
-    };
-    const dimensionsHandler = Dimensions.addEventListener("change", onChange);
+    if (route.params) setPosts((prev) => [...prev, route.params]);
+    console.log(posts);                       
+  }, [route.params]);
+ 
+  // const [posts, setPosts] = useState([]);
 
-    return () => dimensionsHandler.remove();
-  }, []);
+  // useEffect(() => {
+  //   const onChange = () => {
+  //     const width = Dimensions.get("window").width;
+  //     setWindowWidth(width);
+  //   };
+  //   const dimensionsHandler = Dimensions.addEventListener("change", onChange);
 
-  useEffect(() => {
-    async function prepare() {
-      await SplashScreen.preventAutoHideAsync();
-    }
-    prepare();
-  }, []);
+  //   return () => dimensionsHandler.remove();
+  // }, []);
+
+  // useEffect(() => {
+  //   async function prepare() {
+  //     await SplashScreen.preventAutoHideAsync();
+  //   }
+  //   prepare();
+  // }, []);
 
   const [fonts] = useFonts({
     Roboto: require("../../assets/fonts/Roboto-Regular.ttf"),
@@ -75,10 +82,11 @@ export const PostsScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <View style={styles.itemList}>
             <Image
-              source={item.img}
+              source={{ uri: item.img}}
               style={{
-                ...styles.cardImage,
-                width: windowWidth - 16 * 2,
+                
+                width: 350,
+                height: 200
               }}
             />
             <Text style={styles.userPostTitle}>{item.title}</Text>
@@ -96,10 +104,14 @@ export const PostsScreen = ({ navigation }) => {
                   <Text style={styles.textStatistic}>{item.likes}</Text>
                 </View>
               </View>
-              <View style={styles.wrap}>
+
+              <TouchableOpacity
+                style={styles.wrap}
+                onPress={() => navigation.navigate("Map", item )}
+              >
                 <Location />
-                <Text style={styles.textStatistic}>{item.location}</Text>
-              </View>
+                <Text style={styles.cardText}>{item.city}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}

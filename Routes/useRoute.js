@@ -6,6 +6,8 @@ import { MapScreen } from "../Screens/Main/MapScreen";
 import { Home } from "../Screens/Main/Home";
 import RegistrationScreen from "./../Screens/Auth/RegistrationScreen/RegistrationScreen";
 import LoginScreen from "./../Screens/Auth/LoginScreen/LoginScreen";
+import { CreatePostsScreen } from "./../Screens/Main/CreatePostsScreen";
+import CameraScreen from "./../Screens/Main/CameraScreen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -32,6 +34,17 @@ export const useRoute = (isLogin) => {
         name="Map"
         component={MapScreen}
       ></MainStack.Screen>
+      <MainStack.Screen
+        options={{ headerShown: true, headerTitleAlign: "center" }}
+        name="CreatePosts"
+        component={CreatePostsScreen}
+      ></MainStack.Screen>
+
+      <MainStack.Screen
+        options={{ headerShown: true, headerTitleAlign: "center" }}
+        name="Camera"
+        component={CameraScreen}
+      ></MainStack.Screen>
     </MainStack.Navigator>
   ) : (
     <AuthStack.Navigator initialRouteName="Login">
@@ -45,7 +58,6 @@ export const useRoute = (isLogin) => {
         name="Login"
         component={LoginScreen}
       ></AuthStack.Screen>
-      <AuthStack.Screen name="Home" component={Home} />
     </AuthStack.Navigator>
   );
 };

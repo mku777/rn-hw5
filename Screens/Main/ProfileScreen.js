@@ -151,6 +151,13 @@ export const ProfileScreen = ({ navigation }) => {
                   <Location />
                   <Text style={styles.statisticText}>{item.location}</Text>
                 </View>
+                {/* <TouchableOpacity
+                  style={styles.statisticWrap}
+                  onPress={() => navigation.navigate("Map")}
+                >
+                  <Location />
+                  <Text style={styles.statisticText}>{item.location}</Text>
+                </TouchableOpacity> */}
               </View>
             </View>
           )}
